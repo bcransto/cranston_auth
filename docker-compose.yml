@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: cranston_auth_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword123}
+      MYSQL_DATABASE: cranston_auth_production
+      MYSQL_USER: cranston_auth
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dbpassword123}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-rootpassword123}"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+
+  web:
+    build: .
+    container_name: cranston_auth_web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: production
+      DATABASE_HOST: db
+      DATABASE_PORT: 3306
+      DATABASE_NAME: cranston_auth_production
+      DATABASE_USERNAME: cranston_auth
+      DATABASE_PASSWORD: ${MYSQL_PASSWORD:-dbpassword123}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      RAILS_LOG_TO_STDOUT: "true"
+      RAILS_SERVE_STATIC_FILES: "true"
+      # Service API Keys
+      CLASSROOM_SERVICE_API_KEY: ${CLASSROOM_SERVICE_API_KEY:-classroom_service_key_123}
+      GAME_SERVICE_API_KEY: ${GAME_SERVICE_API_KEY:-game_service_key_456}
+      STORE_SERVICE_API_KEY: ${STORE_SERVICE_API_KEY:-store_service_key_789}
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+
+volumes:
+  mysql_data:
+    driver: local

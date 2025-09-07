@@ -2,7 +2,7 @@ module Api
   module V1
     class ServicesController < ApplicationController
       skip_before_action :authorize_request
-      before_action :authenticate_service!
+      before_action :authenticate_service_request!
       
       # GET /api/v1/services/users/:external_id
       def user_by_external_id

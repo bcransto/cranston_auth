@@ -34,6 +34,19 @@ class ApplicationController < ActionController::API
   def authenticate_service!
     service_key = request.headers['X-Service-Api-Key']
     
+    Rails.logger.info "Service Auth Debug - Header key: #{service_key}"
+    Rails.logger.info "Service Auth Debug - Valid keys: #{[ENV['CLASSROOM_SERVICE_API_KEY'], ENV['GAME_SERVICE_API_KEY'], ENV['STORE_SERVICE_API_KEY']].inspect}"
+    
+    unless service_key && valid_service_key?(service_key)
+      render json: { errors: 'Invalid service credentials' }, status: :unauthorized
+      return false
+    end
+    true
+  end
+  
+  def authenticate_service_request!
+    service_key = request.headers['X-Service-Api-Key']
+    
     unless service_key && valid_service_key?(service_key)
       render json: { errors: 'Invalid service credentials' }, status: :unauthorized
     end

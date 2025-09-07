@@ -50,6 +50,8 @@ test:
 #
 production:
   <<: *default
-  database: cranston_auth_production
-  username: cranston_auth
-  password: <%= ENV["CRANSTON_AUTH_DATABASE_PASSWORD"] %>
+  database: <%= ENV.fetch("DATABASE_NAME", "cranston_auth_production") %>
+  username: <%= ENV.fetch("DATABASE_USERNAME", "cranston_auth") %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD", "") %>
+  host: <%= ENV.fetch("DATABASE_HOST", "localhost") %>
+  port: <%= ENV.fetch("DATABASE_PORT", 3306) %>
