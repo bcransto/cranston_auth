@@ -1,0 +1,79 @@
+<h2>Batch Add Users</h2>
+
+<div style="background-color: #f0f8ff; padding: 1rem; margin-bottom: 2rem; border-radius: 4px;">
+  <h3>Instructions:</h3>
+  <p>Enter user data in CSV format (one user per line):</p>
+  <code style="display: block; background: white; padding: 0.5rem; margin: 0.5rem 0;">
+    email,password,role,lasid,first_name,last_name,nickname,date_of_birth
+  </code>
+  <ul style="margin-top: 1rem;">
+    <li><strong>Required fields:</strong> email, password</li>
+    <li><strong>Optional fields:</strong> All other fields can be left blank</li>
+    <li><strong>Role options:</strong> student, teacher, admin (defaults to student if blank)</li>
+    <li><strong>LASID:</strong> Required for students (4 digits), leave blank for teachers/admins</li>
+    <li><strong>Date format:</strong> YYYY-MM-DD (e.g., 2010-05-15)</li>
+    <li>You can include a header row - it will be automatically skipped</li>
+  </ul>
+</div>
+
+<% if @results && (@results[:errors].any? || @results[:success].any?) %>
+  <div style="margin-bottom: 2rem;">
+    <% if @results[:success].any? %>
+      <div style="background-color: #d4edda; color: #155724; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+        <h3>Successfully created <%= @results[:success].count %> users:</h3>
+        <ul>
+          <% @results[:success].each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    
+    <% if @results[:errors].any? %>
+      <div style="background-color: #f8d7da; color: #721c24; padding: 1rem; margin-bottom: 1rem; border-radius: 4px;">
+        <h3>Errors (<%= @results[:errors].count %>):</h3>
+        <ul>
+          <% @results[:errors].each do |msg| %>
+            <li><%= msg %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%= form_with url: batch_create_admin_users_path, local: true do |form| %>
+  <div class="form-group">
+    <%= form.label :csv_data, 'CSV Data:' %>
+    <%= form.text_area :csv_data, rows: 15, style: 'width: 100%; font-family: monospace;', 
+        placeholder: "email,password,role,lasid,first_name,last_name,nickname,date_of_birth\nstudent4@cranston.edu,password123,student,3456,Emma,Wilson,Em,2010-03-15\nstudent5@cranston.edu,password123,student,7890,Michael,Davis,Mike,2011-07-22\nteacher3@cranston.edu,password123,teacher,,Sarah,Anderson,," %>
+  </div>
+  
+  <div class="form-group">
+    <%= form.check_box :stop_on_error %>
+    <%= form.label :stop_on_error, 'Stop and rollback on first error (otherwise, skip failed rows and continue)' %>
+  </div>
+  
+  <div style="margin-top: 2rem;">
+    <%= form.submit 'Import Users', class: 'btn' %>
+    <%= link_to 'Cancel', admin_users_path, class: 'btn' %>
+  </div>
+<% end %>
+
+<div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #ddd;">
+  <h3>Example CSV:</h3>
+  <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">
+email,password,role,lasid,first_name,last_name,nickname,date_of_birth
+student10@cranston.edu,password123,student,1111,John,Smith,Johnny,2010-09-15
+student11@cranston.edu,password123,student,2222,Jane,Doe,Janie,2011-03-22
+teacher10@cranston.edu,password123,teacher,,Bob,Johnson,,
+admin2@cranston.edu,password123,admin,,Alice,Williams,Ali,1985-06-10
+  </pre>
+  
+  <h4 style="margin-top: 1.5rem;">Minimal Example (only required fields):</h4>
+  <pre style="background: #f5f5f5; padding: 1rem; border-radius: 4px; overflow-x: auto;">
+student100@cranston.edu,password123,,,,,,
+teacher100@cranston.edu,password123,teacher,,,,,
+  </pre>
+  <p style="color: #666; font-size: 0.9em;">Note: Empty fields are represented by commas with nothing between them.</p>
+</div>

@@ -1,0 +1,59 @@
+<h2>Edit User</h2>
+
+<% if @user.errors.any? %>
+  <div class="error-messages">
+    <h3>Please fix the following errors:</h3>
+    <ul>
+      <% @user.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>
+
+<%= form_with model: [:admin, @user], local: true do |form| %>
+  <div class="form-group">
+    <%= form.label :email %>
+    <%= form.email_field :email, required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :password, 'Password (leave blank to keep current)' %>
+    <%= form.password_field :password %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :role %>
+    <%= form.select :role, options_for_select(User.roles.map {|k,v| [k.capitalize, k]}, @user.role), {}, required: true %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :lasid, 'LASID (4 digits, students only)' %>
+    <%= form.text_field :lasid, maxlength: 4 %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :first_name %>
+    <%= form.text_field :first_name %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :last_name %>
+    <%= form.text_field :last_name %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :nickname %>
+    <%= form.text_field :nickname %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :date_of_birth %>
+    <%= form.date_field :date_of_birth %>
+  </div>
+
+  <div style="margin-top: 2rem;">
+    <%= form.submit 'Update User', class: 'btn' %>
+    <%= link_to 'Cancel', admin_user_path(@user), class: 'btn' %>
+  </div>
+<% end %>
